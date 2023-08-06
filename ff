@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+preview_cmd="bat --color=always --plain --line-range :200 {}"
+
+print_help()
+{
+  echo 'usage: ff [OPTIONS] [query]'
+  echo
+  echo 'Find and open a file.'
+  echo
+  echo 'POSITIONAL ARGUMENTS'
+  echo '  query    An initial query used to filter files.'
+  echo
+  echo 'OPTIONS'
+  echo '  --help   Print this help message.'
+  echo '  --hidden Include hidden (dot files).'
+}
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --hidden)
+      hidden='--hidden'
+      shift
+      ;;
+    --help)
+      print_help
+      exit 0
+      ;;
+    *)
+      query+=("$1")
+      shift
+      ;;
+  esac
+done
+
+rg --files $hidden                                \
+  | fzf --preview="$preview_cmd" --query="$query" \
+  | xargs --no-run-if-empty ${EDITOR:-vi}
